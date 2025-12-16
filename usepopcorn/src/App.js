@@ -53,24 +53,45 @@ function average(arr) {
 }
 
 function App() {
+  const [movies, setMovies] = useState(tempMovieData);
+   const [watched, setWatched] = useState(tempWatchedData);
   return (
     <div>
-      <Navbar />
-      <Main />
+      <Navbar>
+        <Logo />
+        <Search />
+        <Numresults movies={movies} />
+      </Navbar>
+
+      {/* <Main>
+        <Box element={<MovieList movies={movies} />} />
+        <Box element={
+                 <>
+                    <WatchedSummary watched={watched} />
+                   <WatchedMovieList watched={watched} />
+                 </>
+        }/>
+      </Main> */}
+
+      <Main>
+        <Box>
+          <MovieList movies={movies} />
+        </Box>
+
+        <Box>
+         <WatchedSummary watched={watched} />
+         <WatchedMovieList watched={watched} />
+        </Box>
+       
+      </Main>
     </div>
   );
 }
 
 export default App;
 
-function Navbar() {
-  return (
-    <nav className="nav-bar">
-      <Logo />
-      <Search />
-      <Numresults />
-    </nav>
-  );
+function Navbar({ children }) {
+  return <nav className="nav-bar">{children}</nav>;
 }
 
 function Logo() {
@@ -94,39 +115,36 @@ function Search() {
   );
 }
 
-function Numresults() {
+function Numresults({ movies }) {
   return (
     <p className="num-results">
-      Found <strong>X</strong> results
+      Found <strong>{movies.length}</strong> results
     </p>
   );
 }
 
-function Main() {
-  return (
-    <main>
-      <ListBox />
-      <WatchedBox />
-    </main>
-  );
+function Main({ children }) {
+  return <main>{children}</main>;
 }
 
 /////// list box section ....
 
-function ListBox() {
+function Box({ children }) {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="box">
       <button className="btn-toggle" onClick={() => setIsOpen((cur) => !cur)}>
         {isOpen ? "-" : "+"}
       </button>
-      {isOpen && <MovieList />}
+      {isOpen && children}
     </div>
   );
 }
 
-function MovieList() {
-  const [movies, setMovies] = useState(tempMovieData);
+
+
+
+function MovieList({ movies }) {
   return (
     <div className="list">
       {movies.map((ele) => (
@@ -152,23 +170,7 @@ function Movie({ movie }) {
 
 ///// watched box section ....
 
-function WatchedBox() {
-  const [isOpen2, setIsOpen2] = useState(true);
-  const [watched, setWatched] = useState(tempWatchedData);
-  return (
-    <div className="box">
-      <button className="btn-toggle" onClick={() => setIsOpen2((cur) => !cur)}>
-        {isOpen2 ? "-" : "+"}
-      </button>
-      {isOpen2 && (
-        <>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList />
-        </>
-      )}
-    </div>
-  );
-}
+
 
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
@@ -203,6 +205,49 @@ function WatchedSummary({ watched }) {
   );
 }
 
-function WatchedMovieList() {
-  return <div>watched movie list</div>;
+function WatchedMovieList({ watched }) {
+  return (
+    <div className="list">
+      {watched.map((movie) => (
+        <Watchedmovie movie={movie} key={movie.imdbID} />
+      ))}
+    </div>
+  );
+}
+
+//  {
+//     imdbID: "tt1375666",
+//     Title: "Inception",
+//     Year: "2010",
+//     Poster:
+//       "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+//     runtime: 148,
+//     imdbRating: 8.8,
+//     userRating: 10,
+//   },
+
+function Watchedmovie({ movie }) {
+  return (
+    <div className="watched-movie-container">
+      <img height={150} src={movie.Poster} alt={`${movie.Title}`} />
+      <div className="watched-movie-info">
+        <h3>{movie.Title}</h3>
+        <div className="watched-movie-child-info">
+          <p>
+            <span>⭐</span>
+            <span>{movie.imdbRating}</span>
+          </p>
+          <p>
+            <span>🌟</span>
+            <span>{movie.userRating}</span>
+          </p>
+
+          <p>
+            <span>⌛</span>
+            <span>{movie.runtime}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

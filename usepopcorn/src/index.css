@@ -114,3 +114,28 @@ main {
   align-items: center;
 
 }
+
+
+
+.watched-movie-container{
+display: flex;
+flex-direction: row;
+padding: 15px;
+align-items: center;
+}
+
+.watched-movie-info{
+  margin-left: 20px;
+}
+
+.watched-movie-child-info{
+ display: flex ;
+ flex-direction: row;
+ justify-content: space-between;
+
+}
+
+.watched-movie-child-info p{
+  margin-left: 50px;
+  margin-top: 20px;
+}
