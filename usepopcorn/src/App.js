@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const tempMovieData = [
@@ -51,10 +51,21 @@ const tempWatchedData = [
 function average(arr) {
   return arr.reduce((acc, ele) => acc + ele / arr.length, 0);
 }
-
+const KEY = "d997c473";
 function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-   const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+
+  useEffect(function () {
+    async function fetchMovies() {
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=harry`);
+      const data = await res.json();
+      setMovies(data.Search);
+    }
+    fetchMovies();
+  }, []);
+
+
   return (
     <div>
       <Navbar>
@@ -63,26 +74,15 @@ function App() {
         <Numresults movies={movies} />
       </Navbar>
 
-      {/* <Main>
-        <Box element={<MovieList movies={movies} />} />
-        <Box element={
-                 <>
-                    <WatchedSummary watched={watched} />
-                   <WatchedMovieList watched={watched} />
-                 </>
-        }/>
-      </Main> */}
-
       <Main>
         <Box>
           <MovieList movies={movies} />
         </Box>
 
         <Box>
-         <WatchedSummary watched={watched} />
-         <WatchedMovieList watched={watched} />
+          <WatchedSummary watched={watched} />
+          <WatchedMovieList watched={watched} />
         </Box>
-       
       </Main>
     </div>
   );
@@ -141,9 +141,6 @@ function Box({ children }) {
   );
 }
 
-
-
-
 function MovieList({ movies }) {
   return (
     <div className="list">
@@ -169,8 +166,6 @@ function Movie({ movie }) {
 }
 
 ///// watched box section ....
-
-
 
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));

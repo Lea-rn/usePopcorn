@@ -12,7 +12,7 @@ function Challange() {
 
       <TextExpander
       collapseNumWords={20}
-      expandButtonText="SHow text"
+      expandButtonText="Show text"
       collapseButtonText="Collapse text"
       buttonColor="#ff6622"
       >
