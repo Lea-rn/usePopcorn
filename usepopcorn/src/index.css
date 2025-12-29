@@ -141,6 +141,11 @@ align-items: center;
 }
 
 
-
+.loader , .error {
+  font-size: 40px;
+  text-align: center;
+  margin-top: 300px;
+  font-weight: 600;
+}
 
 
