@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import "./App.css";
+import StartRating from "./StartRating";
 
 const tempMovieData = [
   {
@@ -77,7 +78,16 @@ function App() {
 
 
     function handleSelectedMovie(id){
-      setSelectedId(id)
+      setSelectedId((cur)=> cur === id ? null : id)
+    }
+
+
+    function handleCloseMovie (){
+      setSelectedId(null)
+    }
+
+    function handleAddWatched (movie){
+     setWatched((cur)=> [...cur , movie])
     }
 
 
@@ -101,7 +111,7 @@ function App() {
         if (data.Response === "False") {
           throw new Error ("Movie not found !!")
         }
-      console.log(data.Search)
+    
         setMovies(data.Search);
        
       } catch (err) {
@@ -139,7 +149,12 @@ function App() {
 
         <Box>
           {selectedId ? 
-          <MovieDetails selectedId={selectedId}/>  : 
+          <MovieDetails 
+          selectedId={selectedId}
+          onCloseMovie={handleCloseMovie}
+          onAddWatched={handleAddWatched}
+          watched={watched}
+          />  : 
        <>
            <WatchedSummary watched={watched} />
            <WatchedMovieList watched={watched} />
@@ -238,8 +253,104 @@ function Movie({ movie , onSelectMovie }) {
   );
 }
 
-function MovieDetails ({selectedId}){
-return <div className="details">{selectedId}</div>
+function MovieDetails ({selectedId , onCloseMovie , onAddWatched , watched}){
+const [movie , setMovie] = useState({})
+const [isLoading , setIsLoading] = useState(false) ; 
+const [userRating , setUserRating] = useState("")
+
+const isWatched = watched.map((movie)=> movie.imdbID).includes(selectedId)  
+
+const watchedUserRating = watched.find((movie)=> movie.imdbID === selectedId)?.userRating
+
+const {
+Title : title , 
+Year : year , 
+Poster : poster , 
+Runtime : runtime ,
+Actors : actors , 
+Director : director , 
+Genre : genre  , 
+imdbRating ,
+Plot : plot , 
+Released : released
+} = movie
+  
+function handleAdd (){
+  const newWatchedMovie = {
+    imdbID : selectedId ,
+    title , 
+    year , 
+    poster ,
+    imdbRating : Number(imdbRating) , 
+    runtime : Number(runtime.split(" ")[0]) , 
+    userRating
+  }
+  onAddWatched(newWatchedMovie)
+  onCloseMovie()
+
+}
+
+
+  useEffect(function(){
+    async function getMovieDetails (){
+      setIsLoading(true)
+      const res = await fetch (`http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`)
+      const data = await res.json()   ;
+  console.log(data)
+      setMovie(data)
+      setIsLoading(false)
+     }
+    getMovieDetails()
+  },[selectedId])
+
+return <div className="details">
+{isLoading ? <Loader/> : <>
+<button onClick={onCloseMovie} className="btn-close">&larr;</button>
+<div className="movie-details-container">
+<img height={250} src={poster} alt={title}/>
+<div className="movie-details-header">
+ <h4>{title}</h4>
+ <p>{released} - {runtime}</p>
+ <p>{genre}</p>
+ <p>⭐ {imdbRating} IMDB rating</p>
+</div>
+</div>
+
+<div className="rating">
+
+  {!isWatched ?   <>
+ <StartRating maxRating={10} size={24} onSetRating={setUserRating} />
+
+ {userRating && 
+  <button className="btn-add" onClick={handleAdd}>
+  +Add to list
+ </button>
+ }
+  
+  </>  : <p>You rated this movie with {watchedUserRating} ⭐</p>}
+
+
+</div>
+
+<div className="movie-details-footer">
+  <p className="plot">
+  {plot}
+  </p>
+  
+  <p>
+    <strong>Starring :</strong>
+    {actors}
+  </p>
+  
+  <p>
+    <strong>Directed by : </strong>
+    {director}
+  </p>
+</div >
+
+</>}
+
+</div>
 }
 
 ///// watched box section ....
@@ -301,9 +412,9 @@ function WatchedMovieList({ watched }) {
 function Watchedmovie({ movie }) {
   return (
     <div className="watched-movie-container">
-      <img height={150} src={movie.Poster} alt={`${movie.Title}`} />
+      <img height={150} src={movie.poster} alt={`${movie.title}`} />
       <div className="watched-movie-info">
-        <h3>{movie.Title}</h3>
+        <h3>{movie.title}</h3>
         <div className="watched-movie-child-info">
           <p>
             <span>⭐</span>

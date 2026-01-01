@@ -82,7 +82,9 @@ body {
   align-items: center;
   padding: 30px;
   border-bottom: 2px solid var(--color-text-dark);
+  cursor: pointer;
 }
+
 
 .movie-card img {
   margin-right: 30px;
@@ -148,4 +150,70 @@ align-items: center;
   font-weight: 600;
 }
 
+.btn-close {
+    position: absolute;
+  left: 0px;
+  padding: 8px 14px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--color-backgroud-900);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.movie-details-container{
+  background-color: var(--color-backgroud-100) ; 
+
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 60px;
+
+
+}
+
+.movie-details-header {
+  margin-left: 20px;
+  padding: 20px 0px;
+}
+
+.movie-details-header p {
+  margin: 40px 0px;
+}
+
+.movie-details-footer{
+  padding: 30px 20px;
+}
+
+.plot {
+font-weight: 600;
+}
+
+.movie-details-footer p {
+  margin: 20px 0px;
+}
+
+.rating{
+  background-color: var(--color-backgroud-100) ; 
+
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 20px;
+
+
+}
+
+.btn-add {
+  background-color: var(--color-primary);
+  padding: 10px 80px;
+  text-align: center;
+  color: var(--color-text);
+  border: none;
+  border-radius: 10px;
+  margin-top: 20px;
+  cursor: pointer;
+}
 

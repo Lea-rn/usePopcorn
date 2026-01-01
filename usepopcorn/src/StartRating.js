@@ -31,6 +31,7 @@ export default function StartRating({
   const textStyle = {
     margin: "0",
     fontSize: `${size}px`,
+    color : color
   };
   return (
     <div style={containerStyle} className={className}>
