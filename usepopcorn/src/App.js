@@ -90,16 +90,22 @@ function App() {
      setWatched((cur)=> [...cur , movie])
     }
 
+    function handleDeleteWatched (id){
+      setWatched((cur)=> cur.filter((ele)=> ele.imdbID !== id) )
+    }
+
 
 
 
   useEffect(function () {
+    const controller = new AbortController()
     async function fetchMovies() {
       try {
         setIsLoading(true);
         setError("")
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}` ,
+          {signal : controller.signal}
         );
       
 
@@ -113,10 +119,19 @@ function App() {
         }
     
         setMovies(data.Search);
+        setError("")
        
       } catch (err) {
         setError(err.message);
-      } finally{
+            if (err.name !== "AbortError") {
+        setError(err.message)
+      }
+      } 
+
+  
+       
+  
+      finally{
       setIsLoading(false);
       }
     }
@@ -130,6 +145,12 @@ function App() {
 
 
     fetchMovies();
+
+    return function (){
+      controller.abort()
+    }
+
+
   }, [query]);
 
   return (
@@ -154,10 +175,11 @@ function App() {
           onCloseMovie={handleCloseMovie}
           onAddWatched={handleAddWatched}
           watched={watched}
+         
           />  : 
        <>
            <WatchedSummary watched={watched} />
-           <WatchedMovieList watched={watched} />
+           <WatchedMovieList watched={watched} onDeleteWatched={handleDeleteWatched} />
        </>
           
         }
@@ -290,18 +312,47 @@ function handleAdd (){
 
 }
 
+     useEffect (function (){
+function callback(e){
+  if (e.code === "Escape"){
+    onCloseMovie()
+    console.log("Closing")
+  }
+}
+
+      document.addEventListener("keydown" , callback)
+
+
+      return function(){
+        document.removeEventListener("keydown" , callback)
+      }
+     },[onCloseMovie])
+
 
   useEffect(function(){
     async function getMovieDetails (){
       setIsLoading(true)
       const res = await fetch (`http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`)
       const data = await res.json()   ;
-  console.log(data)
+ 
       setMovie(data)
       setIsLoading(false)
      }
     getMovieDetails()
   },[selectedId])
+
+
+  useEffect(function(){
+    if (!title) return ;
+  document.title = `Movie | ${title}`
+   
+  //////  clean up function (anmount) :: 
+ return function (){
+  document.title = "usePopcorn"
+
+ }
+
+  },[title])
 
 return <div className="details">
 {isLoading ? <Loader/> : <>
@@ -371,47 +422,41 @@ function WatchedSummary({ watched }) {
 
         <p>
           <span>⭐</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(2)}</span>
         </p>
 
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}</span>
+          <span>{avgUserRating.toFixed(2)}</span>
         </p>
 
         <p>
           <span>⌛</span>
-          <span>{avgRunTime}</span>
+          <span>{avgRunTime.toFixed(0)}</span>
         </p>
       </div>
     </div>
   );
 }
 
-function WatchedMovieList({ watched }) {
+function WatchedMovieList({ watched , onDeleteWatched}) {
   return (
     <div className="list">
       {watched.map((movie) => (
-        <Watchedmovie movie={movie} key={movie.imdbID} />
+        <Watchedmovie movie={movie} 
+        key={movie.imdbID}
+        onDeleteWatched={onDeleteWatched}
+        />
       ))}
     </div>
   );
 }
 
-//  {
-//     imdbID: "tt1375666",
-//     Title: "Inception",
-//     Year: "2010",
-//     Poster:
-//       "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-//     runtime: 148,
-//     imdbRating: 8.8,
-//     userRating: 10,
-//   },
 
-function Watchedmovie({ movie }) {
+
+function Watchedmovie({ movie , onDeleteWatched}) {
   return (
-    <div className="watched-movie-container">
+    <div className="watched-movie-container" >
       <img height={150} src={movie.poster} alt={`${movie.title}`} />
       <div className="watched-movie-info">
         <h3>{movie.title}</h3>
@@ -431,6 +476,7 @@ function Watchedmovie({ movie }) {
           </p>
         </div>
       </div>
+      <button onClick={()=> onDeleteWatched(movie.imdbID)} className="btn-delete" >❌</button>
     </div>
   );
 }

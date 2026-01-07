@@ -217,3 +217,10 @@ font-weight: 600;
   cursor: pointer;
 }
 
+.btn-delete {
+  margin-left: 60px;
+  background-color: var(--color-backgroud-100);
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
